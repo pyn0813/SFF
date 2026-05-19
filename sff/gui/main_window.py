@@ -199,7 +199,7 @@ class SFFMainWindow(QMainWindow):
         layout = QVBoxLayout(scroll_widget)
         scroll.setWidget(scroll_widget)
         main_tab_layout.addWidget(scroll, stretch=1)
-        self.tabs.addTab(main_tab_widget, "Main")
+        self.tabs.addTab(main_tab_widget, "主页")
         from sff.gui.help_buttons import add_help_button
         add_help_button(
             layout,
@@ -254,15 +254,15 @@ class SFFMainWindow(QMainWindow):
         self._download_manager = DownloadManager()
         self.ui.download_manager = self._download_manager
         self.store_tab = StoreTab(steam_path=steam_path, ui=self.ui, run_tool_fn=self._run_tool)
-        self.tabs.addTab(self.store_tab, "Store")
+        self.tabs.addTab(self.store_tab, "商店")
         self.downloads_tab = DownloadsTab(download_manager=self._download_manager)
-        self.tabs.addTab(self.downloads_tab, "Download Tracking")
+        self.tabs.addTab(self.downloads_tab, "下载追踪")
         self.fix_game_tab = FixGameTab(steam_path=steam_path)
-        self.tabs.addTab(self.fix_game_tab, "Fix Game")
+        self.tabs.addTab(self.fix_game_tab, "修复游戏")
         self.tools_tab = ToolsTab(steam_path)
-        self.tabs.addTab(self.tools_tab, "Tools")
+        self.tabs.addTab(self.tools_tab, "工具")
         self.cloud_saves_tab = CloudSavesTab(steam_path)
-        self.tabs.addTab(self.cloud_saves_tab, "Cloud Saves")
+        self.tabs.addTab(self.cloud_saves_tab, "云存档")
         # ── Game / path ──────────────────────────────────────────
         path_group = QGroupBox(T("Game / path"))
         path_layout = QVBoxLayout(path_group)
@@ -296,22 +296,22 @@ class SFFMainWindow(QMainWindow):
         refresh_btn = QPushButton(T("Refresh list"))
         refresh_btn.clicked.connect(self._refresh_game_list)
         game_row.addWidget(refresh_btn)
-        quick_cc_btn = QPushButton("Quick ColdClient")
-        quick_cc_btn.setToolTip("Open Fix Game tab with ColdClient mode pre-filled for the selected game")
+        quick_cc_btn = QPushButton("快速 ColdClient")
+        quick_cc_btn.setToolTip("打开修复游戏标签页并预设 ColdClient 模式")
         quick_cc_btn.clicked.connect(self._quick_coldclient)
         game_row.addWidget(quick_cc_btn)
         game_row.addStretch()
         path_layout.addLayout(game_row)
         outside_row = QHBoxLayout()
-        self._outside_name_label = QLabel("Game name:")
+        self._outside_name_label = QLabel("游戏名称：")
         outside_row.addWidget(self._outside_name_label)
         self.outside_name_edit = QLineEdit()
-        self.outside_name_edit.setPlaceholderText("For search (e.g. online-fix.me)")
+        self.outside_name_edit.setPlaceholderText("用于搜索 (例如 online-fix.me)")
         outside_row.addWidget(self.outside_name_edit)
-        self._outside_appid_label = QLabel("App ID:")
+        self._outside_appid_label = QLabel("App ID：")
         outside_row.addWidget(self._outside_appid_label)
         self.outside_appid_edit = QLineEdit()
-        self.outside_appid_edit.setPlaceholderText("Optional")
+        self.outside_appid_edit.setPlaceholderText("可选")
         self.outside_appid_edit.setMaximumWidth(80)
         outside_row.addWidget(self.outside_appid_edit)
         outside_row.addStretch()
@@ -406,7 +406,7 @@ class SFFMainWindow(QMainWindow):
             btn = QPushButton(label)
             btn.clicked.connect(lambda checked=False, f=func: self._run_tool(f))
             tools_row1.addWidget(btn)
-        self._mute_btn = QPushButton("Mute")
+        self._mute_btn = QPushButton("静音")
         self._mute_btn.clicked.connect(self._toggle_mute)
         tools_row1.addWidget(self._mute_btn)
         tools_row1.addStretch()
@@ -454,7 +454,7 @@ class SFFMainWindow(QMainWindow):
         help_menu.addAction(T("Analytics dashboard")).triggered.connect(
             lambda: self._run_tool(lambda: self.ui.analytics_dashboard_menu())
         )
-        logs_action = menubar.addAction("Logs")
+        logs_action = menubar.addAction("日志")
         logs_action.triggered.connect(self._show_log_window)
         self._stream_emitter.text_written.connect(self._append_log)
         # Only persist the Qt fallback theme if there was no saved theme or the saved
@@ -477,7 +477,7 @@ class SFFMainWindow(QMainWindow):
     # ── Path / game source helpers ───────────────────────────────
 
     def _browse_path(self):
-        path = QFileDialog.getExistingDirectory(self, "Select game folder")
+        path = QFileDialog.getExistingDirectory(self, "选择游戏文件夹")
         if path:
             self.path_edit.setText(path)
             if self.radio_outside.isChecked() and not self.outside_name_edit.text().strip():
@@ -502,14 +502,14 @@ class SFFMainWindow(QMainWindow):
         self._game_list = []
         injection = self.ui.app_list_man or self.ui.sls_man
         if not injection:
-            self.game_combo.addItem("(Unsupported on this OS)", None)
+            self.game_combo.addItem("(此系统不支持)", None)
             return
         steam_libs = get_steam_libs(self.steam_path)
         lib_path = steam_libs[0] if steam_libs else self.steam_path
         handler = GameHandler(self.steam_path, lib_path, self.ui.provider, injection)
         self._game_list = handler.get_game_list()
         if not self._game_list:
-            self.game_combo.addItem("(No games found)", None)
+            self.game_combo.addItem("(未找到游戏)", None)
             return
         for name, acf in self._game_list:
             self.game_combo.addItem(name, acf)
@@ -520,15 +520,14 @@ class SFFMainWindow(QMainWindow):
         acf = self._get_selected_acf()
         if acf is None:
             from PyQt6.QtWidgets import QMessageBox
-            QMessageBox.warning(self, "No Game Selected",
-                                "Please select a game from the dropdown first.")
+            QMessageBox.warning(self, "未选择游戏", "请先从下拉列表中选择一个游戏。")
             return
         game_path = str(getattr(acf, "path", "") or "")
         app_id = str(getattr(acf, "app_id", "") or "")
         self.fix_game_tab.prefill(game_path, app_id, EmuMode.COLDCLIENT_SIMPLE)
         # switch to Fix Game tab
         for i in range(self.tabs.count()):
-            if self.tabs.tabText(i) == "Fix Game":
+            if self.tabs.tabText(i) == "修复游戏":
                 self.tabs.setCurrentIndex(i)
                 break
 
@@ -587,7 +586,7 @@ class SFFMainWindow(QMainWindow):
 
     def _start_worker(self, func, label: str = "action", on_done=None):
         if self._worker_thread is not None and self._worker_thread.isRunning():
-            QMessageBox.information(self, "Busy", "An action is already running.")
+            QMessageBox.information(self, "忙碌", "有一个任务正在运行。")
             return
         self._append_log(f"\n--- Running: {label} ---\n")
         old_stdout = sys.stdout
@@ -618,13 +617,13 @@ class SFFMainWindow(QMainWindow):
         if acf is None:
             QMessageBox.warning(
                 self,
-                "No game selected",
+                "未选择游戏",
                 "Select a Steam game from the list or set a path for a game outside of Steam.",
             )
             return
         app_id = acf.app_id
         if not app_id:
-            QMessageBox.warning(self, "No app ID", "Could not determine the game's App ID.")
+            QMessageBox.warning(self, "无 App ID", "无法确定游戏的 App ID。")
             return
         from sff.gui.workshop_browser import open_workshop_browser
         open_workshop_browser(app_id, self)
@@ -635,7 +634,7 @@ class SFFMainWindow(QMainWindow):
         if acf is None:
             QMessageBox.warning(
                 self,
-                "No game selected",
+                "未选择游戏",
                 "Select a Steam game from the list or set a path for a game outside of Steam.",
             )
             return
@@ -645,7 +644,7 @@ class SFFMainWindow(QMainWindow):
         if choice == MainMenu.REMOVE_DRM:
             exe_path_str, _ = QFileDialog.getOpenFileName(
                 self,
-                "Select game executable",
+                "选择游戏可执行文件",
                 str(acf.path),
                 "Executables (*.exe)",
             )
@@ -665,16 +664,16 @@ class SFFMainWindow(QMainWindow):
         if get_steamauto_cli_path() is None:
             QMessageBox.critical(
                 self,
-                "SteamAutoCrack not found",
-                "SteamAutoCrack CLI is missing. Place the Steam-auto-crack repo in "
-                "third_party/SteamAutoCrack and build the CLI into third_party/SteamAutoCrack/cli/.",
+                "未找到 SteamAutoCrack",
+                "SteamAutoCrack CLI 缺失。请将 Steam-auto-crack 仓库放入 "
+                "third_party/SteamAutoCrack 并将 CLI 构建到 third_party/SteamAutoCrack/cli/。",
             )
             return
         acf = self._get_selected_acf()
         if acf is None:
             QMessageBox.warning(
                 self,
-                "No game selected",
+                "未选择游戏",
                 "Select a Steam game from the list or set a path for a game outside of Steam.",
             )
             return
@@ -775,7 +774,7 @@ class SFFMainWindow(QMainWindow):
             return
         self._music_muted = not self._music_muted
         self.ui.midi_player.set_muted(self._music_muted)
-        self._mute_btn.setText("Unmute" if self._music_muted else "Mute")
+        self._mute_btn.setText("取消静音" if self._music_muted else "静音")
 
     # ── Settings dialog ──────────────────────────────────────────
 
@@ -790,10 +789,10 @@ class SFFMainWindow(QMainWindow):
         )
         from sff.structs import SettingCustomTypes, Settings
         dlg = QDialog(self)
-        dlg.setWindowTitle("Settings")
+        dlg.setWindowTitle("设置")
         dlg.setMinimumSize(620, 500)
         layout = QVBoxLayout(dlg)
-        layout.addWidget(QLabel("Double-click a setting to edit. Select and press Delete to clear."))
+        layout.addWidget(QLabel("双击设置进行编辑。选中后按 Delete 清除。"))
         win_only: set[Settings] = set()
         linux_only = {Settings.SLS_CONFIG_LOCATION}
         skip: set[Settings] = set()
@@ -825,10 +824,10 @@ class SFFMainWindow(QMainWindow):
         _refresh_list()
         layout.addWidget(lw)
         btn_row = QHBoxLayout()
-        edit_btn = QPushButton("Edit")
-        delete_btn = QPushButton("Delete")
-        export_btn = QPushButton("Export")
-        import_btn = QPushButton("Import")
+        edit_btn = QPushButton("编辑")
+        delete_btn = QPushButton("删除")
+        export_btn = QPushButton("导出")
+        import_btn = QPushButton("导入")
         btn_row.addWidget(edit_btn)
         btn_row.addWidget(delete_btn)
         btn_row.addStretch()
@@ -872,19 +871,19 @@ class SFFMainWindow(QMainWindow):
             elif s.type == str:
                 if s.hidden:
                     val, ok = QInputDialog.getText(
-                        dlg, s.clean_name, f"Enter {s.clean_name}:", QLineEdit.EchoMode.Password,
+                        dlg, s.clean_name, f"输入 {s.clean_name}:", QLineEdit.EchoMode.Password,
                     )
                 else:
                     cur_val = get_setting(s) or ""
                     val, ok = QInputDialog.getText(
-                        dlg, s.clean_name, f"Enter {s.clean_name}:", QLineEdit.EchoMode.Normal, str(cur_val),
+                        dlg, s.clean_name, f"输入 {s.clean_name}:", QLineEdit.EchoMode.Normal, str(cur_val),
                     )
                 if ok:
                     set_setting(s, val)
             else:
                 cur_val = get_setting(s) or ""
                 val, ok = QInputDialog.getText(
-                    dlg, s.clean_name, f"Enter {s.clean_name}:", QLineEdit.EchoMode.Normal, str(cur_val),
+                    dlg, s.clean_name, f"输入 {s.clean_name}:", QLineEdit.EchoMode.Normal, str(cur_val),
                 )
                 if ok:
                     set_setting(s, val)
@@ -896,32 +895,32 @@ class SFFMainWindow(QMainWindow):
                 return
             s: Settings = item.data(Qt.ItemDataRole.UserRole)
             if QMessageBox.question(
-                dlg, "Delete", f"Clear {s.clean_name}?",
+                dlg, "删除", f"清除 {s.clean_name}?",
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
             ) == QMessageBox.StandardButton.Yes:
                 clear_setting(s)
                 _refresh_list()
                 self._apply_setting_live(s, dlg)
         def _export():
-            path, _ = QFileDialog.getSaveFileName(dlg, "Export settings", "settings_export.json", "JSON (*.json)")
+            path, _ = QFileDialog.getSaveFileName(dlg, "导出设置", "settings_export.json", "JSON (*.json)")
             if path:
                 ok = export_settings(Path(path), include_sensitive=False)
                 if ok:
-                    QMessageBox.information(dlg, "Exported", f"Settings exported to {path}")
+                    QMessageBox.information(dlg, "已导出", f"设置已导出到 {path}")
                 else:
-                    QMessageBox.warning(dlg, "Error", "Failed to export settings.")
+                    QMessageBox.warning(dlg, "错误", "导出设置失败。")
         def _import():
-            path, _ = QFileDialog.getOpenFileName(dlg, "Import settings", "", "JSON (*.json)")
+            path, _ = QFileDialog.getOpenFileName(dlg, "导入设置", "", "JSON (*.json)")
             if not path:
                 return
             if QMessageBox.question(
-                dlg, "Import", "This will overwrite existing settings. Continue?",
+                dlg, "导入", "这将覆盖现有设置。是否继续？",
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
             ) != QMessageBox.StandardButton.Yes:
                 return
             ok, msg = import_settings(Path(path))
             if ok:
-                QMessageBox.information(dlg, "Imported", msg)
+                QMessageBox.information(dlg, "已导入", msg)
                 _refresh_list()
             else:
                 QMessageBox.warning(dlg, "Error", msg)
@@ -946,8 +945,8 @@ class SFFMainWindow(QMainWindow):
             if parent_widget:
                 QMessageBox.information(
                     parent_widget,
-                    "Restart Recommended",
-                    "Steam path changed. Please restart SteaMidra for all changes to take full effect.",
+                    "建议重启",
+                    "Steam 路径已更改。请重启 SteaMidra 以使所有更改完全生效。",
                 )
         elif s == Settings.LANGUAGE:
             from sff.i18n import set_language
@@ -975,7 +974,7 @@ class SFFMainWindow(QMainWindow):
                 self._tray_hide_notified = True
                 self._tray.notify(
                     "SteaMidra",
-                    "SteaMidra is running in the system tray. Click the ^ arrow near the clock to find it.",
+                    "SteaMidra 正在系统托盘中运行。点击时钟附近的 ^ 箭头可以找到它。",
                 )
         else:
             self._save_watcher_timer.stop()
@@ -1126,7 +1125,7 @@ class SFFMainWindow(QMainWindow):
         from sff.strings import VERSION
         QMessageBox.about(
             self,
-            "About SteaMidra",
-            f"SteaMidra\nVersion {VERSION}\n\n"
+            "关于 SteaMidra",
+            f"SteaMidra\n版本 {VERSION}\n\n"
             "https://github.com/Midrags/SFF/releases",
         )

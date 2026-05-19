@@ -254,64 +254,64 @@ class FixGameTab(QWidget):
             parent_widget=self,
         )
         # --- Target Game ---
-        target_group = QGroupBox("Target Game")
+        target_group = QGroupBox("目标游戏")
         target_layout = QVBoxLayout(target_group)
         # Installed Steam games dropdown
         dropdown_row = QHBoxLayout()
-        dropdown_row.addWidget(QLabel("Steam Game:"))
+        dropdown_row.addWidget(QLabel("Steam 游戏："))
         self._game_combo = QComboBox()
         self._game_combo.setMinimumWidth(260)
-        self._game_combo.addItem("— select installed game —", None)
+        self._game_combo.addItem("— 选择已安装的游戏 —", None)
         self._game_combo.currentIndexChanged.connect(self._on_game_selected)
         dropdown_row.addWidget(self._game_combo)
         self._refresh_games_btn = QPushButton("↻")
         self._refresh_games_btn.setFixedWidth(30)
-        self._refresh_games_btn.setToolTip("Refresh installed game list")
+        self._refresh_games_btn.setToolTip("刷新已安装游戏列表")
         self._refresh_games_btn.clicked.connect(self._refresh_game_list)
         dropdown_row.addWidget(self._refresh_games_btn)
         dropdown_row.addStretch()
         target_layout.addLayout(dropdown_row)
         # Manual path row (optional override / cs.rin games)
         path_layout = QHBoxLayout()
-        path_layout.addWidget(QLabel("Game Folder:"))
+        path_layout.addWidget(QLabel("游戏文件夹："))
         self._path_edit = QLineEdit()
-        self._path_edit.setPlaceholderText("Or browse manually (for games from cs.rin/RAR)...")
+        self._path_edit.setPlaceholderText("或手动浏览（适用于来自 cs.rin/RAR 的游戏）...")
         path_layout.addWidget(self._path_edit)
-        self._browse_btn = QPushButton("Browse")
+        self._browse_btn = QPushButton("浏览")
         self._browse_btn.clicked.connect(self._browse)
         path_layout.addWidget(self._browse_btn)
         target_layout.addLayout(path_layout)
         id_layout = QHBoxLayout()
-        id_layout.addWidget(QLabel("App ID:"))
+        id_layout.addWidget(QLabel("App ID："))
         self._id_edit = QLineEdit()
-        self._id_edit.setPlaceholderText("Leave blank to auto-detect")
+        self._id_edit.setPlaceholderText("留空以自动检测")
         id_layout.addWidget(self._id_edit)
         target_layout.addLayout(id_layout)
         layout.addWidget(target_group)
         # Populate game list now (fast, no network)
         self._refresh_game_list()
         # --- User Identity ---
-        identity_group = QGroupBox("User Identity (applies to all emulator modes)")
+        identity_group = QGroupBox("用户身份（适用于所有模拟器模式）")
         identity_layout = QVBoxLayout(identity_group)
         name_layout = QHBoxLayout()
-        name_layout.addWidget(QLabel("Username:      "))
+        name_layout.addWidget(QLabel("用户名：      "))
         self._name_edit = QLineEdit()
-        self._name_edit.setPlaceholderText("Player")
+        self._name_edit.setPlaceholderText("玩家")
         name_layout.addWidget(self._name_edit)
         identity_layout.addLayout(name_layout)
         steamid_layout = QHBoxLayout()
-        steamid_layout.addWidget(QLabel("Steam64 ID:   "))
+        steamid_layout.addWidget(QLabel("Steam64 ID：   "))
         self._steamid_edit = QLineEdit()
-        self._steamid_edit.setPlaceholderText(f"Leave blank for default  ({_DEFAULT_STEAM_ID})")
+        self._steamid_edit.setPlaceholderText(f"留空使用默认值  ({_DEFAULT_STEAM_ID})")
         steamid_layout.addWidget(self._steamid_edit)
         identity_layout.addLayout(steamid_layout)
-        id_hint = QLabel("(i)  Leave Steam64 ID blank unless you know what you're changing.")
+        id_hint = QLabel("(i)  除非您知道自己在做什么，否则请留空 Steam64 ID。")
         id_hint.setStyleSheet("color: #888; font-size: 10px; padding: 0px 0px 2px 0px;")
         identity_layout.addWidget(id_hint)
         avatar_layout = QHBoxLayout()
-        avatar_layout.addWidget(QLabel("Avatar Image:  "))
+        avatar_layout.addWidget(QLabel("头像图片：  "))
         self._avatar_edit = QLineEdit()
-        self._avatar_edit.setPlaceholderText("Optional — .png / .jpg / .jpeg")
+        self._avatar_edit.setPlaceholderText("可选 — .png / .jpg / .jpeg")
         avatar_layout.addWidget(self._avatar_edit)
         self._avatar_btn = QPushButton("Browse")
         self._avatar_btn.clicked.connect(self._browse_avatar)
@@ -319,15 +319,15 @@ class FixGameTab(QWidget):
         identity_layout.addLayout(avatar_layout)
         layout.addWidget(identity_group)
         # --- Fix Options ---
-        opt_group = QGroupBox("Fix Options")
+        opt_group = QGroupBox("修复选项")
         opt_layout = QVBoxLayout(opt_group)
         mode_layout = QHBoxLayout()
-        mode_layout.addWidget(QLabel("Emulator Mode:"))
+        mode_layout.addWidget(QLabel("模拟器模式："))
         self._mode_combo = QComboBox()
-        self._mode_combo.addItem("Regular — replace steam_api.dll", EmuMode.REGULAR)
-        self._mode_combo.addItem("ColdClient Simple — Python config + Steam API DLC fetch", EmuMode.COLDCLIENT_SIMPLE)
-        self._mode_combo.addItem("ColdClient Advanced — GSE Fork tool (best DLC coverage)", EmuMode.COLDCLIENT_ADVANCED)
-        self._mode_combo.addItem("ColdLoader DLL — proxy DLL method", EmuMode.COLDLOADER_DLL)
+        self._mode_combo.addItem("常规模式 — 替换 steam_api.dll", EmuMode.REGULAR)
+        self._mode_combo.addItem("ColdClient 简单模式 — Python 配置 + Steam API DLC 获取", EmuMode.COLDCLIENT_SIMPLE)
+        self._mode_combo.addItem("ColdClient 高级模式 — GSE Fork 工具（最佳 DLC 覆盖）", EmuMode.COLDCLIENT_ADVANCED)
+        self._mode_combo.addItem("ColdLoader DLL — 代理 DLL 方法", EmuMode.COLDLOADER_DLL)
         mode_layout.addWidget(self._mode_combo)
         mode_layout.addStretch()
         opt_layout.addLayout(mode_layout)
@@ -341,14 +341,14 @@ class FixGameTab(QWidget):
         mode_tip.setStyleSheet("color: #a0a0a0; font-size: 10px; padding: 2px 0px 4px 0px;")
         opt_layout.addWidget(mode_tip)
         # GSE Fork options panel — only visible when ColdClient Advanced is selected
-        self._gse_group = QGroupBox("GSE Fork Options")
+        self._gse_group = QGroupBox("GSE Fork 选项")
         gse_layout = QVBoxLayout(self._gse_group)
         self._gse_auth_widget = QWidget()
         auth_row = QHBoxLayout(self._gse_auth_widget)
         auth_row.setContentsMargins(0, 0, 0, 0)
-        auth_row.addWidget(QLabel("Auth:"))
-        self._gse_anon_radio = QRadioButton("Anonymous (no credentials)")
-        self._gse_login_radio = QRadioButton("Login with Steam credentials")
+        auth_row.addWidget(QLabel("认证："))
+        self._gse_anon_radio = QRadioButton("匿名（无需凭据）")
+        self._gse_login_radio = QRadioButton("使用 Steam 凭据登录")
         self._gse_anon_radio.setChecked(True)
         self._gse_auth_group = QButtonGroup(self)
         self._gse_auth_group.addButton(self._gse_anon_radio)
@@ -361,15 +361,15 @@ class FixGameTab(QWidget):
         creds_layout = QVBoxLayout(self._gse_creds_widget)
         creds_layout.setContentsMargins(0, 0, 0, 0)
         user_row = QHBoxLayout()
-        user_row.addWidget(QLabel("Steam Account:"))
+        user_row.addWidget(QLabel("Steam 账户："))
         self._gse_user_edit = QLineEdit()
-        self._gse_user_edit.setPlaceholderText("Steam account username")
+        self._gse_user_edit.setPlaceholderText("Steam 账户用户名")
         user_row.addWidget(self._gse_user_edit)
         creds_layout.addLayout(user_row)
         pass_row = QHBoxLayout()
-        pass_row.addWidget(QLabel("Password:           "))
+        pass_row.addWidget(QLabel("密码：           "))
         self._gse_pass_edit = QLineEdit()
-        self._gse_pass_edit.setPlaceholderText("Steam account password")
+        self._gse_pass_edit.setPlaceholderText("Steam 账户密码")
         self._gse_pass_edit.setEchoMode(QLineEdit.EchoMode.Password)
         pass_row.addWidget(self._gse_pass_edit)
         creds_layout.addLayout(pass_row)
@@ -393,27 +393,27 @@ class FixGameTab(QWidget):
         self._gse_login_radio.toggled.connect(self._on_gse_auth_changed)
         # Row: Goldberg update + Launch.bat (administrative options)
         row_admin = QHBoxLayout()
-        self._chk_goldberg_update = QCheckBox("Check for Goldberg updates (downloads latest from GitHub)")
+        self._chk_goldberg_update = QCheckBox("检查 Goldberg 更新（从 GitHub 下载最新版本）")
         self._chk_goldberg_update.setChecked(False)
         row_admin.addWidget(self._chk_goldberg_update)
-        self._chk_launchbat = QCheckBox("Create Launch.bat (For ColdClient)")
+        self._chk_launchbat = QCheckBox("创建 Launch.bat（用于 ColdClient）")
         self._chk_launchbat.setChecked(False)
         row_admin.addWidget(self._chk_launchbat)
         row_admin.addStretch()
         opt_layout.addLayout(row_admin)
         # Linux-only: toggle between native game vs Proton/Wine
         self._chk_linux_native = QCheckBox(
-            "Linux native game (uses libsteam_api.so) — uncheck for Proton/Wine (.dll)"
+            "Linux 原生游戏（使用 libsteam_api.so）— 取消勾选适用于 Proton/Wine (.dll)"
         )
         self._chk_linux_native.setChecked(True)
         self._chk_linux_native.setVisible(sys.platform != "win32")
         opt_layout.addWidget(self._chk_linux_native)
         # Row: SteamStub + Experimental (related options)
         row_stub = QHBoxLayout()
-        self._chk_steamstub = QCheckBox("Auto-unpack SteamStub DRM (Steamless)")
+        self._chk_steamstub = QCheckBox("自动解压 SteamStub DRM (Steamless)")
         self._chk_steamstub.setChecked(True)
         row_stub.addWidget(self._chk_steamstub)
-        self._chk_steamless_exp = QCheckBox("Use Experimental Features (needed for newer SteamStub variants)")
+        self._chk_steamless_exp = QCheckBox("使用实验性功能（需要更新版 SteamStub）")
         self._chk_steamless_exp.setChecked(True)
         self._chk_steamstub.toggled.connect(self._chk_steamless_exp.setEnabled)
         row_stub.addWidget(self._chk_steamless_exp)
@@ -422,8 +422,8 @@ class FixGameTab(QWidget):
         # steam_settings generation mode
         config_layout = QHBoxLayout()
         config_layout.addWidget(QLabel("steam_settings:"))
-        self._radio_simple = QRadioButton("Simple (fast — DLC fetched, no achievements/depot data)")
-        self._radio_advanced = QRadioButton("Advanced (fetches DLCs, languages, depots)")
+        self._radio_simple = QRadioButton("简单（快速 — 获取 DLC，无成就/ depot 数据）")
+        self._radio_advanced = QRadioButton("高级（获取 DLC、语言、 depot）")
         self._radio_advanced.setChecked(True)
         self._settings_mode_group = QButtonGroup(self)
         self._settings_mode_group.addButton(self._radio_simple)
@@ -435,17 +435,17 @@ class FixGameTab(QWidget):
         layout.addWidget(opt_group)
         # --- Action buttons ---
         btn_layout = QHBoxLayout()
-        self._run_btn = QPushButton("Run Fix Game Pipeline")
+        self._run_btn = QPushButton("运行修复游戏流程")
         self._run_btn.setFixedHeight(40)
         self._run_btn.clicked.connect(self._run_fix)
         btn_layout.addWidget(self._run_btn)
-        self._revert_btn = QPushButton("Revert Changes")
+        self._revert_btn = QPushButton("还原更改")
         self._revert_btn.setFixedHeight(40)
         self._revert_btn.clicked.connect(self._run_revert)
         btn_layout.addWidget(self._revert_btn)
         layout.addLayout(btn_layout)
         # --- Log output ---
-        log_group = QGroupBox("Status Output")
+        log_group = QGroupBox("状态输出")
         log_layout = QVBoxLayout(log_group)
         self._log_area = QTextEdit()
         self._log_area.setReadOnly(True)
@@ -457,7 +457,7 @@ class FixGameTab(QWidget):
         """Scan installed Steam games and populate the dropdown."""
         self._game_combo.blockSignals(True)
         self._game_combo.clear()
-        self._game_combo.addItem("— select installed game —", None)
+        self._game_combo.addItem("— 选择已安装的游戏 —", None)
         try:
             self._game_entries = _scan_installed_games(self._steam_path)
             for name, app_id, path in self._game_entries:
@@ -518,7 +518,7 @@ class FixGameTab(QWidget):
         return ""
 
     def _browse(self):
-        path = QFileDialog.getExistingDirectory(self, "Select Game Folder")
+        path = QFileDialog.getExistingDirectory(self, "选择游戏文件夹")
         if path:
             self._path_edit.setText(path)
             if not self._id_edit.text():
@@ -528,7 +528,7 @@ class FixGameTab(QWidget):
 
     def _browse_avatar(self):
         path, _ = QFileDialog.getOpenFileName(
-            self, "Select Avatar Image", "",
+            self, "选择头像图片", "",
             "Image Files (*.png *.jpg *.jpeg)"
         )
         if path:
@@ -573,11 +573,11 @@ class FixGameTab(QWidget):
     def _run_fix(self):
         game_path_str = self._path_edit.text().strip()
         if not game_path_str:
-            QMessageBox.warning(self, "Missing Input", "Please select a game folder.")
+            QMessageBox.warning(self, "缺少输入", "请选择一个游戏文件夹。")
             return
         game_path = Path(game_path_str)
         if not game_path.exists() or not game_path.is_dir():
-            QMessageBox.warning(self, "Invalid Path", "The selected game folder does not exist.")
+            QMessageBox.warning(self, "无效路径", "所选游戏文件夹不存在。")
             return
         app_id = self._id_edit.text().strip()
         if not app_id:
@@ -628,11 +628,11 @@ class FixGameTab(QWidget):
             return
         game_path = Path(game_path_str)
         if not game_path.exists() or not game_path.is_dir():
-            QMessageBox.warning(self, "Invalid Path", "The selected game folder does not exist.")
+            QMessageBox.warning(self, "无效路径", "所选游戏文件夹不存在。")
             return
         reply = QMessageBox.question(
-            self, "Confirm Revert",
-            f"Revert all Fix Game changes in:\n{game_path}\n\nThis will restore original DLLs and delete steam_settings/.",
+            self, "确认还原",
+            f"还原以下游戏的所有修复游戏更改：\n{game_path}\n\n这将恢复原始 DLL 并删除 steam_settings/。",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
         )
         if reply != QMessageBox.StandardButton.Yes:
@@ -656,9 +656,9 @@ class FixGameTab(QWidget):
             self._thread.quit()
             self._thread.wait()
         if success:
-            QMessageBox.information(self, "Success", "Game fixed successfully!")
+            QMessageBox.information(self, "成功", "游戏修复成功！")
         else:
-            QMessageBox.critical(self, "Error", f"Failed to fix game:\n{msg}")
+            QMessageBox.critical(self, "错误", f"修复游戏失败：\n{msg}")
 
     def _on_revert_finished(self, success, msg):
         self._run_btn.setEnabled(True)
@@ -667,6 +667,6 @@ class FixGameTab(QWidget):
             self._thread.quit()
             self._thread.wait()
         if success:
-            QMessageBox.information(self, "Reverted", "Changes reverted successfully.")
+            QMessageBox.information(self, "已还原", "更改已成功还原。")
         else:
             QMessageBox.critical(self, "Error", f"Revert failed:\n{msg}")
