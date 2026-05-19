@@ -146,6 +146,7 @@ class SupportedLanguages(Enum):
     PL = "pl"
     RU = "ru"
     AR = "ar"
+    ZH = "zh"
     AUTO = "Auto"
 
 SettingType = Union[type, list[Enum], SettingCustomTypes]

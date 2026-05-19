@@ -1,0 +1,100 @@
+name: Build and Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (e.g., v6.1.5)'
+        required: false
+        type: string
+
+env:
+  PYTHON_VERSION: '3.12'
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Cache pip packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~\AppData\Local\pip\Cache
+            ~\AppData\Roaming\Python\pip\Cache
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install steam==1.4.4 --no-deps
+
+      - name: Check for .NET
+        id: check_dotnet
+        run: |
+          dotnet --version 2>$null
+          if ($LASTEXITCODE -eq 0) { echo "available=true" >> $env:GITHUB_OUTPUT } else { echo "available=false" >> $env:GITHUB_OUTPUT }
+        shell: pwsh
+
+      - name: Build SteamAutoCrack CLI (if .NET available)
+        if: steps.check_dotnet.outputs.available == 'true'
+        run: |
+          dotnet publish "third_party\SteamAutoCrack\Steam-auto-crack-3.5.0.3\Steam-auto-crack-3.5.0.3\SteamAutoCrack.CLI\SteamAutoCrack.CLI.csproj" -c Release -r win-x86 --self-contained true -p:PublishSingleFile=false -p:ErrorOnDuplicatePublishOutputFiles=false
+          if (Test-Path "third_party\SteamAutoCrack\Steam-auto-crack-3.5.0.3\Steam-auto-crack-3.5.0.3\SteamAutoCrack.CLI\bin\Release\net10.0-windows\win-x86\publish\SteamAutoCrack.CLI.exe") {
+            if (!(Test-Path "third_party\SteamAutoCrack\cli")) { New-Item -ItemType Directory -Path "third_party\SteamAutoCrack\cli" }
+            Copy-Item -Path "third_party\SteamAutoCrack\Steam-auto-crack-3.5.0.3\Steam-auto-crack-3.5.0.3\SteamAutoCrack.CLI\bin\Release\net10.0-windows\win-x86\publish\*" -Destination "third_party\SteamAutoCrack\cli" -Recurse -Force
+            Write-Host "SteamAutoCrack CLI built successfully"
+          }
+        shell: pwsh
+
+      - name: Build GUI with PyInstaller
+        run: python -m PyInstaller build_sff_gui.spec --noconfirm
+        env:
+          PYTHONWARNINGS: ignore::UserWarning
+
+      - name: Determine version
+        id: version
+        run: |
+          $version = "${{ github.event.release.tag_name }}"
+          if (-not $version) {
+            $version = "${{ github.inputs.version }}"
+          }
+          if (-not $version) {
+            $version = (Select-String -Path "sff\strings.py" -Pattern "^VERSION").Line.Split("=")[1].Trim().Trim('"')
+          }
+          Write-Host "Version: $version"
+          echo "version=$version" >> $env:GITHUB_OUTPUT
+          $version_no_v = $version.TrimStart("v")
+          echo "version_no_v=$version_no_v" >> $env:GITHUB_OUTPUT
+        shell: pwsh
+
+      - name: Create distribution ZIP
+        run: |
+          $version = "${{ steps.version.outputs.version_no_v }}"
+          $zipName = "SteaMidra-$version-windows"
+          Compress-Archive -Path "dist\SteaMidra_GUI\*" -DestinationPath "$zipName.zip" -Force
+          Write-Host "Created $zipName.zip"
+          ls -la *.zip
+        shell: pwsh
+
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.release.tag_name }}
+          files: SteaMidra-*.zip
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
