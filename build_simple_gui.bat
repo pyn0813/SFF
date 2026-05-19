@@ -9,7 +9,11 @@ echo.
 echo Cleaning old GUI build files...
 if exist "build\build_sff_gui" rmdir /s /q "build\build_sff_gui"
 
-if exist "third_party\SteamAutoCrack\Steam-auto-crack-3.5.0.3\Steam-auto-crack-3.5.0.3\SteamAutoCrack.CLI\SteamAutoCrack.CLI.csproj" (
+REM Check if prebuilt SteamAutoCrack CLI exists in third_party/SteamAutoCrack/cli/
+REM If so, use it. Otherwise, try to build from source if .csproj exists.
+if exist "third_party\SteamAutoCrack\cli\SteamAutoCrack.CLI.exe" (
+    echo Using prebuilt SteamAutoCrack CLI from third_party\SteamAutoCrack\cli\
+) else if exist "third_party\SteamAutoCrack\Steam-auto-crack-3.5.0.3\Steam-auto-crack-3.5.0.3\SteamAutoCrack.CLI\SteamAutoCrack.CLI.csproj" (
     where dotnet >nul 2>&1
     if not errorlevel 1 (
         echo.
@@ -23,7 +27,15 @@ if exist "third_party\SteamAutoCrack\Steam-auto-crack-3.5.0.3\Steam-auto-crack-3
             echo WARNING: SteamAutoCrack CLI build did not produce expected output.
         )
         echo.
+    ) else (
+        echo WARNING: .NET SDK not found, cannot build SteamAutoCrack CLI.
+        echo SteamAutoCrack will not be available.
+        echo.
     )
+) else (
+    echo WARNING: SteamAutoCrack CLI not found in third_party\SteamAutoCrack\cli\.
+    echo SteamAutoCrack feature will not be available.
+    echo.
 )
 
 echo.

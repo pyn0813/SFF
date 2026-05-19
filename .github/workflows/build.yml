@@ -49,14 +49,29 @@ jobs:
           if ($LASTEXITCODE -eq 0) { echo "available=true" >> $env:GITHUB_OUTPUT } else { echo "available=false" >> $env:GITHUB_OUTPUT }
         shell: pwsh
 
-      - name: Build SteamAutoCrack CLI (if .NET available)
-        if: steps.check_dotnet.outputs.available == 'true'
+      - name: Check for prebuilt SteamAutoCrack CLI
+        id: check_steamautocrack
         run: |
-          dotnet publish "third_party\SteamAutoCrack\Steam-auto-crack-3.5.0.3\Steam-auto-crack-3.5.0.3\SteamAutoCrack.CLI\SteamAutoCrack.CLI.csproj" -c Release -r win-x86 --self-contained true -p:PublishSingleFile=false -p:ErrorOnDuplicatePublishOutputFiles=false
-          if (Test-Path "third_party\SteamAutoCrack\Steam-auto-crack-3.5.0.3\Steam-auto-crack-3.5.0.3\SteamAutoCrack.CLI\bin\Release\net10.0-windows\win-x86\publish\SteamAutoCrack.CLI.exe") {
-            if (!(Test-Path "third_party\SteamAutoCrack\cli")) { New-Item -ItemType Directory -Path "third_party\SteamAutoCrack\cli" }
-            Copy-Item -Path "third_party\SteamAutoCrack\Steam-auto-crack-3.5.0.3\Steam-auto-crack-3.5.0.3\SteamAutoCrack.CLI\bin\Release\net10.0-windows\win-x86\publish\*" -Destination "third_party\SteamAutoCrack\cli" -Recurse -Force
-            Write-Host "SteamAutoCrack CLI built successfully"
+          if (Test-Path "third_party\SteamAutoCrack\cli\SteamAutoCrack.CLI.exe") {
+            Write-Host "Using prebuilt SteamAutoCrack CLI"
+            echo "prebuilt=true" >> $env:GITHUB_OUTPUT
+          } else {
+            echo "prebuilt=false" >> $env:GITHUB_OUTPUT
+          }
+        shell: pwsh
+
+      - name: Build SteamAutoCrack CLI (if .NET available and no prebuilt)
+        if: steps.check_dotnet.outputs.available == 'true' && steps.check_steamautocrack.outputs.prebuilt == 'false'
+        run: |
+          if (Test-Path "third_party\SteamAutoCrack\Steam-auto-crack-3.5.0.3\Steam-auto-crack-3.5.0.3\SteamAutoCrack.CLI\SteamAutoCrack.CLI.csproj") {
+            dotnet publish "third_party\SteamAutoCrack\Steam-auto-crack-3.5.0.3\Steam-auto-crack-3.5.0.3\SteamAutoCrack.CLI\SteamAutoCrack.CLI.csproj" -c Release -r win-x86 --self-contained true -p:PublishSingleFile=false -p:ErrorOnDuplicatePublishOutputFiles=false
+            if (Test-Path "third_party\SteamAutoCrack\Steam-auto-crack-3.5.0.3\Steam-auto-crack-3.5.0.3\SteamAutoCrack.CLI\bin\Release\net10.0-windows\win-x86\publish\SteamAutoCrack.CLI.exe") {
+              if (!(Test-Path "third_party\SteamAutoCrack\cli")) { New-Item -ItemType Directory -Path "third_party\SteamAutoCrack\cli" }
+              Copy-Item -Path "third_party\SteamAutoCrack\Steam-auto-crack-3.5.0.3\Steam-auto-crack-3.5.0.3\SteamAutoCrack.CLI\bin\Release\net10.0-windows\win-x86\publish\*" -Destination "third_party\SteamAutoCrack\cli" -Recurse -Force
+              Write-Host "SteamAutoCrack CLI built successfully"
+            }
+          } else {
+            Write-Host "WARNING: SteamAutoCrack source not found, CLI will not be available"
           }
         shell: pwsh
 
