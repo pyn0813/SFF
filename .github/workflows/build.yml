@@ -115,7 +115,6 @@ jobs:
         with:
           tag_name: ${{ github.event.release.tag_name }}
           files: SteaMidra-*.zip
-          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
