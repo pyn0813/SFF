@@ -41,6 +41,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install steam==1.4.4 --no-deps
+          pip install pyinstaller
 
       - name: Check for .NET
         id: check_dotnet
