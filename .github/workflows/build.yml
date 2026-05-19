@@ -103,7 +103,7 @@ jobs:
           $zipName = "SteaMidra-$version-windows"
           Compress-Archive -Path "dist\SteaMidra_GUI\*" -DestinationPath "$zipName.zip" -Force
           Write-Host "Created $zipName.zip"
-          ls -la *.zip
+          Get-ChildItem *.zip | ForEach-Object { Write-Host "$($_.Name) - $([math]::Round($_.Length / 1MB, 1)) MB" }
         shell: pwsh
 
       - name: Upload Release Asset
