@@ -115,6 +115,7 @@ jobs:
         with:
           tag_name: ${{ github.event.release.tag_name }}
           files: SteaMidra-*.zip
+          overwrite: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
